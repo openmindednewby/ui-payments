@@ -75,6 +75,7 @@ export const StripeCredentialsCard = (props: StripeCredentialsCardProps): React.
         <WebhookUrlRow labels={labels} testID={testID} url={webhookUrl} wide={wide} onCopy={onCopyWebhookUrl} />
       ) : null}
       <SecretFields
+        autoFocus={props.autoFocus ?? false}
         configured={connection.configured}
         draft={draft}
         labels={labels}

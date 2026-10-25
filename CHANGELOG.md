@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0
+
+- The webhook URL breaks only after `/`, `.`, `?`, `&`, `=`, `_` and `-` (a `<wbr>` after each on web), never mid-word; the copied text is unchanged (`splitUrlForBreaks`).
+- New props: `saveVariant` (`outline` when a host such as a wizard already shows the one filled action) and `autoFocus` (focus the secret-key field on mount, FOCUS-1 "Every screen names its initial focus").
+
 ## 0.2.1
 
 - The switch row and Disconnect use the shared `useFocusRing` from `@dloizides/ui-buttons` 1.20.1 (the `@dloizides/design-tokens` 1.14 `FOCUS_RING`) instead of a local copy, shown on keyboard focus only; `focusRingColor` delegates to the shared contrast-checked resolver (FOCUS-RING-1 "One focus ring across the shared kit").

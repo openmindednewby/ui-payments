@@ -79,6 +79,7 @@ export const CardActions = ({ card, canSave, save, wide, locked, hint }: Props):
           label={labels.save}
           loading={card.saving ?? false}
           testID={`${testID}-save`}
+          variant={card.saveVariant ?? 'primary'}
           onPress={save}
         />
       ) : null}

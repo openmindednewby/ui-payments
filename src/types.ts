@@ -81,6 +81,10 @@ export interface StripeCredentialsCardProps {
   readOnly?: boolean;
   disabled?: boolean;
   hideSave?: boolean;
+  /** `outline` when the host already shows the screen's one filled action (e.g. a wizard's Continue). Default `primary`. */
+  saveVariant?: 'primary' | 'outline';
+  /** Focus the secret-key field on mount (FOCUS-1): set it when entering keys is the user's next step. */
+  autoFocus?: boolean;
   onDraftChange?: (submission: StripeCredentialsSubmission, canSave: boolean) => void;
   error?: string | null;
   testID?: string;

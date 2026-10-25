@@ -1,10 +1,12 @@
 import React, { useCallback } from 'react';
 
-import { StyleSheet, Text, View, type TextStyle } from 'react-native';
+import { Platform, StyleSheet, Text, View, type TextStyle } from 'react-native';
 
 import { Button } from '@dloizides/ui-buttons';
 import { useUi } from '@dloizides/ui-feedback';
 import { Field } from '@dloizides/ui-forms';
+
+import { splitUrlForBreaks } from '../utils/urlBreaks';
 
 import type { StripeCredentialsLabels } from '../types';
 
@@ -17,7 +19,17 @@ const URL_RADIUS = 6;
 const URL_BORDER = 1;
 const HELP_FONT_SIZE = 13;
 
-const wrapAnywhere = { overflowWrap: 'anywhere', wordBreak: 'break-all' } as unknown as TextStyle;
+const wrapAnywhere = { overflowWrap: 'anywhere', wordBreak: 'normal' } as unknown as TextStyle;
+
+function urlWithBreaks(url: string): React.ReactNode {
+  if (Platform.OS !== 'web') return url;
+  return splitUrlForBreaks(url).map((piece, index) => (
+    <React.Fragment key={`${index}-${piece}`}>
+      {piece}
+      {React.createElement('wbr')}
+    </React.Fragment>
+  ));
+}
 
 const styles = StyleSheet.create({
   box: { borderRadius: URL_RADIUS, borderWidth: URL_BORDER, paddingHorizontal: URL_PADDING_X, paddingVertical: URL_PADDING_Y },
@@ -54,7 +66,7 @@ export const WebhookUrlRow = ({ url, labels, onCopy, wide, testID }: Props): Rea
             ]}
           >
             <Text selectable style={[styles.url, wrapAnywhere, { color: theme.colors.text }]} testID={`${testID}-webhook-url`}>
-              {url}
+              {urlWithBreaks(url)}
             </Text>
           </View>
           {onCopy !== undefined ? (

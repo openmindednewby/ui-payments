@@ -28,6 +28,7 @@ interface Props {
   draft: StripeCredentialsDraft;
   configured: boolean;
   locked: boolean;
+  autoFocus?: boolean;
   setSecretKey: (value: string) => void;
   setWebhookSecret: (value: string) => void;
   testID: string;
@@ -39,6 +40,7 @@ export const SecretFields = ({
   draft,
   configured,
   locked,
+  autoFocus = false,
   setSecretKey,
   setWebhookSecret,
   testID,
@@ -52,6 +54,7 @@ export const SecretFields = ({
       <FormField
         accessibilityHint={labels.secretKeyHint}
         autoCapitalize="none"
+        autoFocus={autoFocus && !locked}
         autoCorrect={false}
         editable={!locked}
         error={
