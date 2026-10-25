@@ -69,7 +69,7 @@ export const CardActions = ({ card, canSave, save, wide, locked, hint }: Props):
     ) : null;
 
   return (
-    <View style={wide ? styles.row : styles.column}>
+    <View style={wide ? styles.row : styles.column} testID={`${testID}-actions`}>
       {showSave ? (
         <Button
           accessibilityHint={hint(labels.saveHint)}

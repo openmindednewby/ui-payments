@@ -10,6 +10,7 @@ import { PaymentsSwitchRow } from './PaymentsSwitchRow';
 import { SecretFields } from './SecretFields';
 import { StripeStatusHeader } from './StripeStatusHeader';
 import { WebhookUrlRow } from './WebhookUrlRow';
+import { useFocusOnError } from '../hooks/useFocusOnError';
 import { useStripeCredentialsDraft } from '../hooks/useStripeCredentialsDraft';
 import { dangerInk } from '../utils/kitColors';
 import { buildStripeSubmission } from '../utils/stripeConnection';
@@ -39,6 +40,7 @@ export const StripeCredentialsCard = (props: StripeCredentialsCardProps): React.
   const locked = readOnly || (props.disabled ?? false);
   const { theme } = useUi();
   const form = useStripeCredentialsDraft(connection, onSave);
+  useFocusOnError(error, testID);
   const { draft } = form;
   const [wide, setWide] = useState(false);
   const onLayout = useCallback((event: LayoutChangeEvent): void => {

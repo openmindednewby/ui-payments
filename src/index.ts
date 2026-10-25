@@ -4,6 +4,7 @@ export { WebhookUrlRow } from './components/WebhookUrlRow';
 export { PaymentsSwitchRow } from './components/PaymentsSwitchRow';
 export { DangerOutlineButton } from './components/DangerOutlineButton';
 export { dangerInk, focusRingColor } from './utils/kitColors';
+export { useFocusOnError } from './hooks/useFocusOnError';
 export { useStripeCredentialsDraft } from './hooks/useStripeCredentialsDraft';
 export { StripeConnectionState } from './StripeConnectionState';
 export {

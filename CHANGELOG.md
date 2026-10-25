@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.3
+
+- FOCUS-1 "Every screen names its initial focus": when a save error appears the card focuses the error line and scrolls its actions (`<testID>-actions`) into view with 24 px below them (`useFocusOnError`).
+
 ## 0.4.2
 
 - Each URL piece between `/` and `.` is kept on one line (`white-space: nowrap`), so the browser no longer breaks after a hyphen in a slug.
