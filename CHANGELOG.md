@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.4
+
+- The save-error reveal scrolls the nearest scroll container (or the window) by exactly what it takes to leave 24 px below the actions (`revealWithMargin`); `scrollIntoView` with `scroll-margin` did not move an RN-web page.
+
 ## 0.4.3
 
 - FOCUS-1 "Every screen names its initial focus": when a save error appears the card focuses the error line and scrolls its actions (`<testID>-actions`) into view with 24 px below them (`useFocusOnError`).
