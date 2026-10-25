@@ -1,0 +1,66 @@
+{
+ "before-connected-360x640": {
+  "boxRight": 298,
+  "textRight": 332,
+  "overflowPx": 46,
+  "lines": 4,
+  "docScrollX": 0,
+  "errs": []
+ },
+ "before-connected-1280x800": {
+  "boxRight": 828,
+  "textRight": 738,
+  "overflowPx": 0,
+  "lines": 2,
+  "docScrollX": 0,
+  "errs": []
+ },
+ "before-not-connected-360x640": {
+  "boxRight": 298,
+  "textRight": 332,
+  "overflowPx": 46,
+  "lines": 4,
+  "docScrollX": 0,
+  "errs": []
+ },
+ "before-not-connected-1280x800": {
+  "boxRight": 828,
+  "textRight": 738,
+  "overflowPx": 0,
+  "lines": 2,
+  "docScrollX": 0,
+  "errs": []
+ },
+ "after-connected-360x640": {
+  "boxRight": 298,
+  "textRight": 282,
+  "overflowPx": 0,
+  "lines": 5,
+  "docScrollX": 0,
+  "errs": []
+ },
+ "after-connected-1280x800": {
+  "boxRight": 828,
+  "textRight": 738,
+  "overflowPx": 0,
+  "lines": 2,
+  "docScrollX": 0,
+  "errs": []
+ },
+ "after-not-connected-360x640": {
+  "boxRight": 298,
+  "textRight": 282,
+  "overflowPx": 0,
+  "lines": 5,
+  "docScrollX": 0,
+  "errs": []
+ },
+ "after-not-connected-1280x800": {
+  "boxRight": 828,
+  "textRight": 738,
+  "overflowPx": 0,
+  "lines": 2,
+  "docScrollX": 0,
+  "errs": []
+ }
+}

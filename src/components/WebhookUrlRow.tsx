@@ -6,7 +6,7 @@ import { Button } from '@dloizides/ui-buttons';
 import { useUi } from '@dloizides/ui-feedback';
 import { Field } from '@dloizides/ui-forms';
 
-import { splitUrlForBreaks } from '../utils/urlBreaks';
+import { splitPieceForGlue, splitUrlForBreaks } from '../utils/urlBreaks';
 
 import type { StripeCredentialsLabels } from '../types';
 
@@ -26,7 +26,17 @@ function urlWithBreaks(url: string): React.ReactNode {
   if (Platform.OS !== 'web') return url;
   return splitUrlForBreaks(url).map((piece, index) => (
     <React.Fragment key={`${index}-${piece}`}>
-      <Text style={keepTogether}>{piece}</Text>
+      <Text style={wrapAnywhere}>
+        {splitPieceForGlue(piece).map((run, runIndex) =>
+          run.glued ? (
+            <Text key={`${runIndex}-${run.text}`} style={keepTogether}>
+              {run.text}
+            </Text>
+          ) : (
+            run.text
+          ),
+        )}
+      </Text>
       {React.createElement('wbr')}
     </React.Fragment>
   ));

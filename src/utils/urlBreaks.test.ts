@@ -1,4 +1,4 @@
-import { splitUrlForBreaks } from './urlBreaks';
+import { splitPieceForGlue, splitUrlForBreaks } from './urlBreaks';
 
 describe('splitUrlForBreaks', () => {
   it('never breaks inside a hyphenated or underscored slug', () => {
@@ -33,5 +33,36 @@ describe('splitUrlForBreaks', () => {
 
   it('returns no pieces for an empty URL', () => {
     expect(splitUrlForBreaks('')).toEqual([]);
+  });
+});
+
+describe('splitPieceForGlue', () => {
+  it('with hyphens in a slug, glues each hyphen to the character after it', () => {
+    const piece = 'merchant-a-shop';
+
+    const runs = splitPieceForGlue(piece);
+
+    expect(runs).toEqual([
+      { text: 'merchant', glued: false },
+      { text: '-a', glued: true },
+      { text: '-s', glued: true },
+      { text: 'hop', glued: false },
+    ]);
+  });
+
+  it('with a trailing separator, leaves it unglued because nothing follows it', () => {
+    const piece = 'webhooks/';
+
+    const runs = splitPieceForGlue(piece);
+
+    expect(runs).toEqual([{ text: 'webhooks/', glued: false }]);
+  });
+
+  it('with any piece, joins back to the exact piece', () => {
+    const piece = 'hook?tenant=a_b&mode=live';
+
+    const runs = splitPieceForGlue(piece);
+
+    expect(runs.map((run) => run.text).join('')).toBe(piece);
   });
 });

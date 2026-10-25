@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.5
+
+- TEXT-FIT-1 "UI text never overflows its box": a webhook URL segment wider than its box (a UUID) now breaks anywhere instead of running past the box. Lines still prefer to break after `/` and `.`; each separator inside a piece is glued to the next character (`splitPieceForGlue`), so a hyphen never becomes a break point. Copy still yields the exact URL.
+
 ## 0.4.4
 
 - The save-error reveal scrolls the nearest scroll container (or the window) by exactly what it takes to leave 24 px below the actions (`revealWithMargin`); `scrollIntoView` with `scroll-margin` did not move an RN-web page.
