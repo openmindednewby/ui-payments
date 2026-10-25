@@ -1,148 +1,107 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
 
 import { Button } from '@dloizides/ui-buttons';
 import { useUi } from '@dloizides/ui-feedback';
-import { FormField, FormSwitch } from '@dloizides/ui-forms';
 
+import { CardActions } from './CardActions';
+import { PaymentsSwitchRow } from './PaymentsSwitchRow';
+import { SecretFields } from './SecretFields';
 import { StripeStatusHeader } from './StripeStatusHeader';
 import { WebhookUrlRow } from './WebhookUrlRow';
 import { useStripeCredentialsDraft } from '../hooks/useStripeCredentialsDraft';
-import { isSecretKeyAcceptable, isWebhookSecretAcceptable } from '../utils/stripeConnection';
+import { dangerInk } from '../utils/kitColors';
+import { buildStripeSubmission } from '../utils/stripeConnection';
 
 import type { StripeCredentialsCardProps } from '../types';
 
 const GAP = 16;
-const TEXT_SIZE = 13;
+const TEXT_SIZE = 14;
+const TEXT_LINE_HEIGHT = 20;
+const ERROR_SIZE = 14;
+const COLUMN_MAX_WIDTH = 640;
+const WIDE_MIN_WIDTH = 480;
 const DEFAULT_TEST_ID = 'stripe';
 
 const styles = StyleSheet.create({
-  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: GAP },
-  text: { fontSize: TEXT_SIZE },
-  root: { gap: GAP },
+  create: { alignSelf: 'flex-start' },
+  error: { fontSize: ERROR_SIZE },
+  root: { gap: GAP, maxWidth: COLUMN_MAX_WIDTH, width: '100%' },
+  text: { fontSize: TEXT_SIZE, lineHeight: TEXT_LINE_HEIGHT },
 });
 
-/** Stripe credentials editor: status, webhook URL, secret inputs, payments switch, save/test/clear. */
-export const StripeCredentialsCard = ({
-  connection,
-  labels,
-  onSave,
-  onClear,
-  onTest,
-  onCopyWebhookUrl,
-  onCreateAccount,
-  saving = false,
-  clearing = false,
-  testing = false,
-  readOnly = false,
-  error,
-  testID = DEFAULT_TEST_ID,
-}: StripeCredentialsCardProps): React.ReactElement => {
+/** Stripe credentials editor in a bounded column: status, webhook URL, secrets, payments switch, save/test/clear. */
+export const StripeCredentialsCard = (props: StripeCredentialsCardProps): React.ReactElement => {
+  const { connection, labels, onSave, onCopyWebhookUrl, onCreateAccount, onDraftChange, error } = props;
+  const testID = props.testID ?? DEFAULT_TEST_ID;
+  const readOnly = props.readOnly ?? false;
+  const locked = readOnly || (props.disabled ?? false);
   const { theme } = useUi();
   const form = useStripeCredentialsDraft(connection, onSave);
   const { draft } = form;
-  const secretInvalid = !isSecretKeyAcceptable(draft.secretKey);
-  const webhookInvalid = !isWebhookSecretAcceptable(draft.webhookSecret);
+  const [wide, setWide] = useState(false);
+  const onLayout = useCallback((event: LayoutChangeEvent): void => {
+    setWide(event.nativeEvent.layout.width >= WIDE_MIN_WIDTH);
+  }, []);
+  useEffect(() => {
+    onDraftChange?.(buildStripeSubmission(draft), form.canSave);
+  }, [draft, form.canSave, onDraftChange]);
   const webhookUrl = connection.webhookUrl ?? '';
   const readOnlyHint = labels.readOnlyHint ?? labels.saveHint;
   const hint = (normal: string): string => (readOnly ? readOnlyHint : normal);
+  const hasError = error !== undefined && error !== null && error !== '';
 
   return (
-    <View style={styles.root} testID={testID}>
+    <View style={styles.root} testID={testID} onLayout={onLayout}>
       <StripeStatusHeader connection={connection} labels={labels} testID={testID} />
       {labels.blurb !== undefined ? (
         <Text style={[styles.text, { color: theme.colors.textSecondary }]}>{labels.blurb}</Text>
       ) : null}
-      {onCreateAccount !== undefined && !connection.configured ? (
-        <Button
-          accessibilityHint={labels.createAccountHint}
-          accessibilityLabel={labels.createAccount}
-          label={labels.createAccount}
-          size="sm"
-          testID={`${testID}-create-account`}
-          variant="ghost"
-          onPress={onCreateAccount}
-        />
+      {onCreateAccount !== undefined ? (
+        <View style={styles.create}>
+          <Button
+            accessibilityHint={labels.createAccountHint}
+            accessibilityLabel={labels.createAccount}
+            label={labels.createAccount}
+            size="sm"
+            testID={`${testID}-create-account`}
+            variant="secondary"
+            onPress={onCreateAccount}
+          />
+        </View>
       ) : null}
       {webhookUrl !== '' ? (
-        <WebhookUrlRow labels={labels} testID={testID} url={webhookUrl} onCopy={onCopyWebhookUrl} />
+        <WebhookUrlRow labels={labels} testID={testID} url={webhookUrl} wide={wide} onCopy={onCopyWebhookUrl} />
       ) : null}
-      <FormField
-        accessibilityHint={labels.secretKeyHint}
-        autoCapitalize="none"
-        autoCorrect={false}
-        editable={!readOnly}
-        error={secretInvalid ? labels.secretKeyInvalid : undefined}
-        label={labels.secretKey}
-        placeholder={connection.configured ? labels.secretKeyKeepPlaceholder : labels.secretKeyPlaceholder}
-        secureTextEntry={draft.secretKey !== ''}
-        testID={`${testID}-secret-key`}
-        value={draft.secretKey}
-        onChangeText={form.setSecretKey}
+      <SecretFields
+        configured={connection.configured}
+        draft={draft}
+        labels={labels}
+        locked={locked}
+        setSecretKey={form.setSecretKey}
+        setWebhookSecret={form.setWebhookSecret}
+        testID={testID}
       />
-      <FormField
-        accessibilityHint={labels.webhookSecretHint}
-        autoCapitalize="none"
-        autoCorrect={false}
-        editable={!readOnly}
-        error={webhookInvalid ? labels.webhookSecretInvalid : undefined}
-        label={labels.webhookSecret}
-        placeholder={connection.configured ? labels.webhookSecretKeepPlaceholder : labels.webhookSecretPlaceholder}
-        secureTextEntry={draft.webhookSecret !== ''}
-        testID={`${testID}-webhook-secret`}
-        value={draft.webhookSecret}
-        onChangeText={form.setWebhookSecret}
-      />
-      <FormSwitch
-        accessibilityHint={labels.paymentsHint}
+      <PaymentsSwitchRow
         description={labels.paymentsDescription}
-        disabled={readOnly}
+        disabled={locked}
+        hint={labels.paymentsHint}
         label={labels.paymentsEnabled}
         testID={`${testID}-payments-switch`}
         value={draft.paymentsEnabled}
         onValueChange={form.setPaymentsEnabled}
       />
-      {error !== undefined && error !== null && error !== '' ? (
-        <Text style={[styles.text, { color: theme.semantic.error['500'] }]} testID={`${testID}-error`}>
+      {hasError ? (
+        <Text
+          accessibilityLiveRegion="polite"
+          style={[styles.error, { color: dangerInk(theme) }]}
+          testID={`${testID}-error`}
+        >
           {error}
         </Text>
       ) : null}
-      <View style={styles.actions}>
-        <Button
-          accessibilityHint={hint(labels.saveHint)}
-          accessibilityLabel={labels.save}
-          disabled={!form.canSave || readOnly}
-          label={labels.save}
-          loading={saving}
-          testID={`${testID}-save`}
-          onPress={form.save}
-        />
-        {onTest !== undefined && connection.configured ? (
-          <Button
-            accessibilityHint={hint(labels.testHint)}
-            accessibilityLabel={labels.test}
-            disabled={readOnly}
-            label={labels.test}
-            loading={testing}
-            testID={`${testID}-test`}
-            variant="outline"
-            onPress={onTest}
-          />
-        ) : null}
-        {onClear !== undefined && connection.configured ? (
-          <Button
-            accessibilityHint={hint(labels.clearHint)}
-            accessibilityLabel={labels.clear}
-            disabled={readOnly}
-            label={labels.clear}
-            loading={clearing}
-            testID={`${testID}-clear`}
-            variant="danger"
-            onPress={onClear}
-          />
-        ) : null}
-      </View>
+      <CardActions canSave={form.canSave} card={props} hint={hint} locked={locked} save={form.save} wide={wide} />
     </View>
   );
 };

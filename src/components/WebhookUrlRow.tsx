@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, type TextStyle } from 'react-native';
 
 import { Button } from '@dloizides/ui-buttons';
 import { useUi } from '@dloizides/ui-feedback';
@@ -10,46 +10,69 @@ import type { StripeCredentialsLabels } from '../types';
 
 const GAP = 8;
 const URL_FONT_SIZE = 13;
-const URL_PADDING = 10;
+const URL_LINE_HEIGHT = 20;
+const URL_PADDING_X = 12;
+const URL_PADDING_Y = 12;
 const URL_RADIUS = 6;
+const URL_BORDER = 1;
+const HELP_FONT_SIZE = 13;
+
+const wrapAnywhere = { overflowWrap: 'anywhere', wordBreak: 'break-all' } as unknown as TextStyle;
 
 const styles = StyleSheet.create({
-  row: { alignItems: 'center', flexDirection: 'row', flexWrap: 'wrap', gap: GAP },
-  url: { borderRadius: URL_RADIUS, flexShrink: 1, fontFamily: 'monospace', fontSize: URL_FONT_SIZE, padding: URL_PADDING },
+  box: { borderRadius: URL_RADIUS, borderWidth: URL_BORDER, paddingHorizontal: URL_PADDING_X, paddingVertical: URL_PADDING_Y },
+  boxWide: { flex: 1, minWidth: 0 },
+  column: { gap: GAP },
+  help: { fontSize: HELP_FONT_SIZE },
+  row: { alignItems: 'center', flexDirection: 'row', gap: GAP },
+  url: { fontFamily: 'monospace', fontSize: URL_FONT_SIZE, lineHeight: URL_LINE_HEIGHT },
 });
 
 interface Props {
   url: string;
   labels: StripeCredentialsLabels;
   onCopy?: (url: string) => void;
+  wide: boolean;
   testID: string;
 }
 
-/** The selectable webhook endpoint the merchant pastes into Stripe, with an optional copy action. */
-export const WebhookUrlRow = ({ url, labels, onCopy, testID }: Props): React.ReactElement => {
+/** The webhook endpoint in a bordered read-only field that wraps; Copy beside it when wide, under it when narrow. */
+export const WebhookUrlRow = ({ url, labels, onCopy, wide, testID }: Props): React.ReactElement => {
   const { theme } = useUi();
   const copy = useCallback((): void => onCopy?.(url), [onCopy, url]);
+  const instruction = labels.webhookUrlInstruction;
 
   return (
     <Field label={labels.webhookUrl}>
-      <View style={styles.row}>
-        <Text
-          selectable
-          style={[styles.url, { backgroundColor: theme.colors.surfaceElevated, color: theme.colors.text }]}
-          testID={`${testID}-webhook-url`}
-        >
-          {url}
-        </Text>
-        {onCopy !== undefined ? (
-          <Button
-            accessibilityHint={labels.webhookCopyHint}
-            accessibilityLabel={labels.webhookCopy}
-            label={labels.webhookCopy}
-            size="sm"
-            testID={`${testID}-webhook-copy`}
-            variant="outline"
-            onPress={copy}
-          />
+      <View style={styles.column}>
+        <View style={wide ? styles.row : styles.column}>
+          <View
+            style={[
+              styles.box,
+              wide ? styles.boxWide : null,
+              { backgroundColor: theme.colors.surfaceElevated, borderColor: theme.colors.border },
+            ]}
+          >
+            <Text selectable style={[styles.url, wrapAnywhere, { color: theme.colors.text }]} testID={`${testID}-webhook-url`}>
+              {url}
+            </Text>
+          </View>
+          {onCopy !== undefined ? (
+            <Button
+              accessibilityHint={labels.webhookCopyHint}
+              accessibilityLabel={labels.webhookCopy}
+              fullWidth={!wide}
+              label={labels.webhookCopy}
+              testID={`${testID}-webhook-copy`}
+              variant="outline"
+              onPress={copy}
+            />
+          ) : null}
+        </View>
+        {instruction !== undefined && instruction !== '' ? (
+          <Text style={[styles.help, { color: theme.colors.textSecondary }]} testID={`${testID}-webhook-instruction`}>
+            {instruction}
+          </Text>
         ) : null}
       </View>
     </Field>

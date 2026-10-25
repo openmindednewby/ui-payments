@@ -38,6 +38,7 @@ export interface StripeCredentialsLabels {
   webhookUrl: string;
   webhookCopy: string;
   webhookCopyHint: string;
+  webhookUrlInstruction?: string;
   secretKey: string;
   secretKeyHint: string;
   secretKeyPlaceholder: string;
@@ -48,6 +49,7 @@ export interface StripeCredentialsLabels {
   webhookSecretPlaceholder: string;
   webhookSecretKeepPlaceholder: string;
   webhookSecretInvalid: string;
+  keepHelper?: string;
   paymentsEnabled: string;
   paymentsDescription: string;
   paymentsHint: string;
@@ -55,6 +57,10 @@ export interface StripeCredentialsLabels {
   saveHint: string;
   clear: string;
   clearHint: string;
+  clearConfirmTitle: string;
+  clearConfirmMessage: string;
+  clearConfirmAction: string;
+  clearCancel: string;
   test: string;
   testHint: string;
   readOnlyHint?: string;
@@ -73,6 +79,9 @@ export interface StripeCredentialsCardProps {
   clearing?: boolean;
   testing?: boolean;
   readOnly?: boolean;
+  disabled?: boolean;
+  hideSave?: boolean;
+  onDraftChange?: (submission: StripeCredentialsSubmission, canSave: boolean) => void;
   error?: string | null;
   testID?: string;
 }
