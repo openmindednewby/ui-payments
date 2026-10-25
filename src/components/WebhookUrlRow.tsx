@@ -20,12 +20,13 @@ const URL_BORDER = 1;
 const HELP_FONT_SIZE = 13;
 
 const wrapAnywhere = { overflowWrap: 'anywhere', wordBreak: 'normal' } as unknown as TextStyle;
+const keepTogether = { whiteSpace: 'nowrap' } as unknown as TextStyle;
 
 function urlWithBreaks(url: string): React.ReactNode {
   if (Platform.OS !== 'web') return url;
   return splitUrlForBreaks(url).map((piece, index) => (
     <React.Fragment key={`${index}-${piece}`}>
-      {piece}
+      <Text style={keepTogether}>{piece}</Text>
       {React.createElement('wbr')}
     </React.Fragment>
   ));

@@ -15,5 +15,8 @@ describe('WebhookUrlRow', () => {
     const node = getByTestId('stripe-webhook-url');
     expect(node.querySelectorAll('wbr')).toHaveLength(9);
     expect(node.textContent).toBe(url);
+    expect(node.textContent).toContain('merchant-a-shop');
+    const slug = Array.from(node.querySelectorAll('*')).find((el) => el.textContent === 'merchant-a-shop') as HTMLElement;
+    expect(getComputedStyle(slug).whiteSpace).toBe('nowrap');
   });
 });

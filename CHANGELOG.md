@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.2
+
+- Each URL piece between `/` and `.` is kept on one line (`white-space: nowrap`), so the browser no longer breaks after a hyphen in a slug.
+
 ## 0.4.1
 
 - The webhook URL breaks only after `/` and `.`; a hyphenated slug (`agora-merchant-a-shop`) stays on one line.
