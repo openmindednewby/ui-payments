@@ -1,9 +1,9 @@
+import { themeFocusRingColor } from '@dloizides/ui-buttons';
 import type { UiTheme } from '@dloizides/ui-feedback';
 
-/** The kit focus-ring colour: the theme's `focusRing` token when present, else primary 500. */
+/** The kit focus-ring colour: the shared contrast-checked focus-ring token from ui-buttons. */
 export function focusRingColor(theme: UiTheme): string {
-  const colors = theme.colors as UiTheme['colors'] & { focusRing?: string };
-  return colors.focusRing ?? theme.palette.primary['500'];
+  return themeFocusRingColor(theme);
 }
 
 /** The danger ink: the darkest addressable error step, for 4.5:1 text on the card surface. */

@@ -2,9 +2,9 @@ import React, { useCallback, useRef } from 'react';
 
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { useFocusRing } from '@dloizides/ui-buttons';
 import { DISABLED_OPACITY, useUi } from '@dloizides/ui-feedback';
 
-import { useFocusRing } from '../hooks/useFocusRing';
 import { useSpaceToggle } from '../hooks/useSpaceToggle';
 
 const MIN_ROW_HEIGHT = 48;

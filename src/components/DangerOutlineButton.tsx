@@ -2,9 +2,9 @@ import React from 'react';
 
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 
+import { useFocusRing } from '@dloizides/ui-buttons';
 import { DISABLED_OPACITY, useUi } from '@dloizides/ui-feedback';
 
-import { useFocusRing } from '../hooks/useFocusRing';
 import { dangerInk } from '../utils/kitColors';
 
 const MIN_HEIGHT = 48;

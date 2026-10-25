@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1
+
+- The switch row and Disconnect use the shared `useFocusRing` from `@dloizides/ui-buttons` 1.20.1 (the `@dloizides/design-tokens` 1.14 `FOCUS_RING`) instead of a local copy, shown on keyboard focus only; `focusRingColor` delegates to the shared contrast-checked resolver (FOCUS-RING-1 "One focus ring across the shared kit").
+
 ## 0.2.0
 
 - Design-critic round 2 (UI-PAY-1 "ui-payments Stripe credentials card"): webhook URL in a bordered field that wraps (Copy beside it when wide, under it when narrow); card bounded to a 640 px column; status pill with a glyph per state; Clear is an outlined danger button behind a `ConfirmDialog`; the payments row is one 48 px `role="switch"` with the 2 px kit focus ring; Save is the only filled control.
