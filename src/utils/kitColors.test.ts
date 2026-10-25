@@ -1,3 +1,5 @@
+import { contrastRatio } from '@dloizides/design-tokens';
+
 import { dangerInk, focusRingColor } from './kitColors';
 
 import type { UiTheme } from '@dloizides/ui-feedback';
@@ -35,5 +37,17 @@ describe('dangerInk', () => {
 
   it('uses error 500 when only the guaranteed step exists', () => {
     expect(dangerInk(themeWith(baseColors, { '500': 'red-500' }))).toBe('red-500');
+  });
+
+  it('keeps error 700 on a light card', () => {
+    const light = { ...baseColors, surface: '#ffffff' };
+    expect(dangerInk(themeWith(light, { '300': '#f19a8f', '500': '#d93a26', '700': '#66150d' }))).toBe('#66150d');
+  });
+
+  it('takes a light error step on a dark card, so the ink clears 4.5:1', () => {
+    const dark = { ...baseColors, surface: '#1c1f26' };
+    const ink = dangerInk(themeWith(dark, { '300': '#f19a8f', '500': '#d93a26', '700': '#66150d' }));
+    expect(ink).toBe('#f19a8f');
+    expect(contrastRatio(ink, '#1c1f26')).toBeGreaterThanOrEqual(4.5);
   });
 });

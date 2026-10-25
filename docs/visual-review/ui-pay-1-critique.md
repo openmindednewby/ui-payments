@@ -140,3 +140,195 @@ With fixes 1 and 2 shipped in their packages, #4 and #7 go to 4 and the mean to 
 Dark theme not rendered; real devices not used (Chromium emulation only); motion and press feedback not
 judged from stills; Save never seen enabled (every story keeps it disabled, so the filled-primary look
 was judged from its disabled tint); screen-reader output not run; `vf_measure.py` not run.
+
+---
+
+# Round 3 — 2026-10-25
+
+- **Subject:** `StripeCredentialsCard` from `@dloizides/ui-payments` 0.2.1, live at https://ui.dloizides.com/payments (showcase `ac12a54`)
+- **States judged:** Not connected, filled (valid keys, Save enabled), invalid key, Live, Payments off (320 px host), Read-only, Error, Disconnect confirm open, keyboard focus on every card control, and **dark theme** (first time rendered) for Not connected / Live / Read-only / Error
+- **Viewports:** 360x640 (Pixel 5 descriptor, touch) and 1280x800, Chromium via Playwright; scripted text-fit, hit boxes, Tab walk with computed ring per stop, dialog name / size / trap / Escape, computed colours in dark
+- **Captures:** session scratchpad `r3/` (`m360-*.png`, `d1280-*.png`: full page, one per story, `-filled`, `-invalid`, `-focus-0..9`, `-dialog`, `-dialog-el`, `-dark-*`) and `r3/res.json` (all measurements)
+
+## Verdict: FAILED — ESCALATE stands (third round on the same option)
+
+Mean 3.75 (30/8), lowest **#3 = 2**. The card's own round 2 fix landed (one focus ring); the dialog fix was
+published but never reached the showcase; and rendering dark mode for the first time exposed a new blocker:
+the danger ink and the outline-button labels are near-invisible on the dark card.
+
+## Did round 2's fixes land?
+
+| Round 2 fix | Round 3 measurement | Landed |
+|---|---|---|
+| ConfirmDialog buttons ≥ 44, `aria-labelledby` (ui-feedback) | Live dialog still **Keep connected 144x41, Disconnect 110x41**, `aria-label` and `aria-labelledby` both null, browser `outline: auto 1px` ring (orange at 360, black at 1280). Cause: `@dloizides/ui-feedback` **1.16.2 is on npm** (source has `minHeight: MIN_TOUCH_TARGET` ConfirmDialog.tsx:57 and `aria-labelledby` :129) but the showcase lock still resolves **1.16.1** (`apps/ui-showcase/package.json:43` `^1.16.1`, package-lock `version 1.16.1`) | **no (not deployed)** |
+| One focus ring in the card (ui-buttons + ui-forms + ui-payments) | Every card stop: Create account, Copy, both inputs, switch row, Save, Test, Disconnect = `solid 2px rgb(79,91,147) offset 2px`, box-shadow none; the 3 px input halo is gone | **yes** |
+| Keep helper 8 px under the inputs | input → helper still **32 px** (input → input 53 px); helper still floats | no |
+| Read-only inputs get the muted fill | read-only input `bg rgb(255,255,255)`, border `rgb(217,221,228)`, identical to editable (dark: both `rgb(36,40,51)`) | no |
+
+## Measurements
+
+| Check | 360x640 | 1280x800 |
+|---|---|---|
+| Horizontal page scroll | none (360) | none (1280) |
+| Text fit: all 5 stories, filled, invalid, dialog, dark | 0 clip / 0 spill | 0 / 0 |
+| Card hit boxes | all ≥ 44 (Create 159x44, Copy 230x48, inputs 230x48, switch row 230x72, Save 230x48, Test 100x48, Disconnect 109x48) | all ≥ 44 (inputs 640x48, switch 640x55) |
+| Save enabled (valid sk_live + whsec) | filled indigo, full width, single fill on card | 100x48, first in row |
+| Invalid key (`pk_wrong`) | Save stays disabled; inline "Expected a key starting with sk_ or rk_" in a live region | same |
+| Dialog behaviour | initial focus Keep connected (FOCUS-1 ok), Tab trapped between the two, Escape closes, focus returns to card Disconnect | same |
+| **Dark: error line** | `rgb(102,21,13)` on card ~`rgb(28,31,38)` ≈ **1.3:1** (needs 4.5) | same |
+| **Dark: Disconnect label + border** | same dark-red ink ≈ **1.3:1**, reads as an empty box | same |
+| **Dark: Copy / Test labels** | indigo `rgb(79,91,147)`-range ink on dark ≈ 2.5:1 (estimated from the capture, not computed) | same |
+| Console errors | 0 | 0 |
+
+Capture note: the 360 element captures include the sticky showcase header over the top of tall cards; the full-page and in-viewport captures were used for judgement.
+
+## Score sheet
+
+| # | Criterion | Score | Evidence |
+|---|---|---|---|
+| 1 | Focal point / purpose | 4 | Status pill reads first; with valid keys Save becomes the one filled control and the obvious next step. |
+| 2 | Portability | 3 | Unchanged: Stripe content in a stock stacked form. |
+| 3 | Hierarchy, type, spacing, colour | **2** | Light theme is a 4, but dark theme fails colour outright: error line and Disconnect ≈ 1.3:1, Copy/Test ≈ 2.5:1. Keep helper still detached (32 px). |
+| 4 | Visual language | 4 | R8 passes inside the card (one 2 px kit ring on every stop). Dialog still uses the browser ring until 1.16.2 ships in the showcase. |
+| 5 | Taste ledger | 4 | No ledger file; calm, one accent, outlined danger. |
+| 6 | AI-default tells | 5 | None. |
+| 7 | Mobile + desktop, text fit | 3 | Text fits in every state at both viewports, both themes; confirm dialog buttons still 41 px high at 360 (deployed 1.16.1). Read-only inputs indistinguishable from editable. |
+| 8 | Inventory vs agora-web base | 5 | 10/10 base items sighted again, plus filled and invalid states. |
+| 9 | Games only | n/a | |
+
+**Mean:** 30 / 8 = 3.75 · **Lowest:** #3 = 2
+
+## Top fixes
+
+1. **ui-payments `dangerInk` is theme-blind** (`src/utils/kitColors.ts:10-13` always returns error 700): pick the step that clears 4.5:1 against the actual card surface (dark: a light error step such as 300/400), used by the error line (`StripeCredentialsCard.tsx:98`) and `DangerOutlineButton.tsx:49`. Check the outline-button label ink in dark too; if it is the ui-buttons outline variant, fix it in `@dloizides/ui-buttons`, not here.
+2. **Showcase: take `@dloizides/ui-feedback` 1.16.2** (`apps/ui-showcase/package.json:43` + lockfile) and redeploy, so the live dialog gets 44 px buttons and `aria-labelledby`; confirm its ring is the kit 2 px ring, not `outline: auto`.
+3. **ui-payments local:** keep helper 8 px under the second secret input (`SecretFields.tsx:71`), and read-only inputs on the kit's muted surface in both themes.
+
+With 1 and 2 shipped, #3 and #7 go to 4 and the mean to 4.0 (PASS bar met, every criterion ≥ 3); fix 3 lifts it above.
+
+## Not covered
+
+Real devices not used (Chromium emulation only); screen-reader output not run; motion and press feedback not judged from stills; dark theme judged for 4 of 5 stories (Payments off not captured dark) and the dialog not opened in dark; Copy/Test dark contrast is an estimate from the capture, not a computed ratio; `vf_measure.py` not run; no taste ledger exists for ui-payments.
+
+# Round 4 — 2026-10-25
+
+- **Subject:** `StripeCredentialsCard` (ui-payments, local: `dangerInk` via `readableScaleInk`, 4 px Keep helper), plus the fleet-wide changes it pulls: `@dloizides/ui-buttons` 1.21.0 (`readableScaleInk`), `@dloizides/ui-forms` 1.19.0 (read-only style), `@dloizides/ui-feedback` 1.16.2 (ConfirmDialog). Local showcase build, not ui.dloizides.com.
+- **Surfaces judged:** payments card (Not connected, filled, invalid, Live, Payments off, Read-only, Error), Disconnect confirm dialog, showcase Buttons page, showcase Forms page; light + dark; 360x640 (Pixel 5) and 1280x800.
+- **Captures:** session scratchpad `r4/` (44 PNGs + `report.json`). Contrast computed from capture pixels (WCAG relative luminance; ink = pixel farthest from the dominant fill in the label box).
+
+## Verdict: FAILED — card PASS, dialog and Forms REDO
+
+The card's round 3 blockers are gone; ESCALATE on the card is lifted. Rendering the dialog in dark for the first time
+exposes a new blocker in `@dloizides/ui-feedback`, and the Forms page shows the same theme-blind error ink that
+ui-payments just fixed, still live in `@dloizides/ui-forms` for all 7 portals.
+
+## Did round 3's fixes land?
+
+| Round 3 fix | Round 4 measurement | Landed |
+|---|---|---|
+| ui-payments `dangerInk` theme-aware | `kitColors.ts:13` now `readableScaleInk(error, surface, 700/600/500, 300/200/400/…)`. Dark error line `rgb(225,106,94)` on `rgb(28,31,38)` = **5.05:1** (was 1.3); light `rgb(102,21,13)` on white = 12.5:1 | **yes** |
+| Outline label ink in dark (ui-buttons) | Copy / outline sm+md+lg label `rgb(148,156,192)` on `rgb(28,31,38)` = **6.11:1** (was ~2.5); light outline 6.46:1, primary 6.46:1 both themes | **yes** |
+| Showcase takes ui-feedback 1.16.2 | Dialog Disconnect fill 110x**44** at 1280, initial focus Keep connected | **yes** |
+| Keep helper under second input | helper sits ~4 px under the Webhook signing secret input (both themes) | **yes** |
+| Read-only inputs on the muted surface | dark read-only `rgb(20,22,27)` vs editable `rgb(36,40,51)` (clear); light `rgb(247,248,250)` vs white (faint, 1.07:1, but present) | **yes** |
+
+## New blockers
+
+| # | Where | Measurement | Owner |
+|---|---|---|---|
+| B1 | Dark ConfirmDialog confirm label | Label ink `rgb(36,40,51)` (= `surfaceElevated`) on fill `rgb(174,32,18)` (= error 500) = **2.13:1** at 360 and 1280. Not dark-red on red: the label is painted with the dark dialog surface colour. Light is 6.97:1 (white on red). The non-destructive confirm (`primary 500` fill) gets the same dark-surface ink in dark. | **`@dloizides/ui-feedback`** `src/ConfirmDialog/ConfirmDialog.tsx:113` (`confirmButtonText: { color: theme.colors.surfaceElevated }`) and `:179` (spinner colour). Fix: an on-fill ink (white / `readableScaleInk` against the fill), not the surface token. |
+| B2 | Forms page, dark: FormField / ThemedTextInput error helper + border | `rgb(174,32,24)` on `rgb(28,31,38)` = **2.37:1** (text needs 4.5, border needs 3). Light 6.97:1. Fleet-wide: every portal's form errors in dark. | **`@dloizides/ui-forms`** `Field/Field.tsx:213`, `useThemedInput/useThemedInput.ts:141`, `TypeaheadControl/TypeaheadControl.tsx:126` (all `semantic.error['500']`, theme-blind). Fix: the same `readableScaleInk` call ui-payments now uses. |
+
+## Measurements
+
+| Check | 360x640 | 1280x800 |
+|---|---|---|
+| Horizontal page scroll | none, every page, both themes | none |
+| `report.json` spill probe | buttons 21, payments 15, dialog 15, forms 0 (identical at both viewports, both themes) | same |
+| Visible clipping in captures | none seen | none seen |
+| Placeholder ink, dark | 3.22-3.57:1 (advisory; placeholders are not labels here) | same |
+| Console | 3x "unsupported MIME type ('text/html')" script errors on every page (local build artefact, unattributed) | same |
+
+The spill probe counts any text node with `scrollWidth > clientWidth` and non-visible overflow; it does not name the
+elements, and RN-web `Text` defaults to `overflow: hidden`, so the counts are unattributed, not proof of clipping.
+
+## Score sheet
+
+| # | Criterion | Card | Dialog | Buttons page | Forms page |
+|---|---|---|---|---|---|
+| 1 | Focal point | 4 | 4 | n/a | n/a |
+| 2 | Portability | 3 | 3 | n/a | n/a |
+| 3 | Hierarchy, type, colour | 4 (dark colour fixed) | **2** (B1, 2.13:1 on the destructive action) | 4 | **2** (B2, 2.37:1) |
+| 4 | Visual language | 4 | 4 | 4 | 4 |
+| 5 | Taste ledger | 4 (no ledger file) | 4 | 4 | 4 |
+| 6 | AI-default tells | 5 | 5 | 5 | 5 |
+| 7 | Mobile + desktop, text fit | 3 (no visible clip; spill probe unattributed) | 4 (44 px buttons) | 3 (spill 21 unattributed) | 4 |
+| 8 | Inventory vs agora-web base | 5 (10/10 + filled, invalid) | n/a | n/a | n/a |
+| | **Mean / verdict** | **32/8 = 4.0 PASS** | 26/7 = 3.7 **REDO** | 20/5 = 4.0 PASS | 19/5 = 3.8 **REDO** |
+
+## Top fixes
+
+1. **ui-feedback** `ConfirmDialog.tsx:113` + `:179`: confirm label and spinner ink = an on-fill colour that clears 4.5:1 on `error 500` / `primary 500` in both themes (white gives 6.97:1 / 6.46:1). Add a dark-theme contrast test.
+2. **ui-forms** `Field.tsx:213`, `useThemedInput.ts:141`, `TypeaheadControl.tsx:126`: error ink via `readableScaleInk(error, surface, …)` as ui-payments does; dark target ≥ 4.5:1 text, ≥ 3:1 border.
+3. **Showcase capture script:** make the spill probe print the offending element's text and testID, so #7 can go to 4 on evidence.
+
+## Not covered
+
+Card Disconnect outline in dark not sighted (every dark Live/Read-only element capture cuts off above it; inferred
+fixed because it calls the same `dangerInk` as the 5.05:1 error line); dark dialog focus ring not captured; Payments off
+dark judged from the full-page capture only; spill-probe elements unidentified; console MIME errors not traced;
+real devices and screen reader not used; motion not judged from stills; `vf_measure.py` not run; no taste ledger
+exists for ui-payments; captures are a local build, not the deployed showcase.
+
+# Round 5 — 2026-10-25
+
+- **Subject:** round 4 REDOs: Disconnect ConfirmDialog (`@dloizides/ui-feedback` `confirmDialogColors`) and the showcase Forms page error ink (`@dloizides/ui-forms` `fieldErrorInk`, both built on `@dloizides/design-tokens` `readableScaleInk`); card and Buttons page re-checked. Local showcase from unpublished builds, not ui.dloizides.com.
+- **Captures:** session scratchpad `r5/` (44 PNGs + `report.json`), light + dark, 360x640 (Pixel 5, 990x1760 device px) and 1280x800.
+- **Method:** ratios recomputed by the critic from capture pixels (WCAG relative luminance; fill = modal pixel in the label box, ink = the pixel farthest from it in luminance), independently of `report.json`. Every value matched the report.
+
+## Verdict: PASSED — dialog and Forms REDO cleared; card and Buttons still PASS
+
+## Did round 4's blockers land?
+
+| Blocker | Round 5 pixel measurement | Landed |
+|---|---|---|
+| B1 dark ConfirmDialog label | Disconnect label `rgb(255,255,255)` on `rgb(174,32,18)` = **6.97:1** at 1280 dark and 360 dark (was 2.13); light 6.97:1 | **yes** |
+| B2 dark Forms error text + border | helper `rgb(225,106,94)` on card `rgb(28,31,38)` = **5.05:1** (was 2.37); border 1 device px of the same ink, ≈ 4.6:1 against the input fill `rgb(36,40,51)` (≥ 3:1); light 6.97:1 | **yes** |
+
+## Re-check: card and Buttons page
+
+| Element | Dark | Light |
+|---|---|---|
+| Card Disconnect outline label (first dark sighting; was NOT COVERED in round 4) | 5.05:1 | from round 4, unchanged |
+| Card Copy / Test labels | 6.11:1 | 6.46:1 (round 4) |
+| Buttons primary md | 6.46:1 | 6.46:1 |
+| Buttons outline md | 6.11:1 | 6.46:1 |
+| Buttons secondary md | 14.98:1 | n/a |
+
+No regression. Horizontal scroll: none on any page, theme or viewport. Spill probe unchanged (buttons 21, payments 15, dialog 15, forms 0) and still unattributed. Dialog initial focus = Keep connected (FOCUS-1: safe action, not destructive) in all four runs. Console: the same 3x "unsupported MIME type ('text/html')" script errors per page as round 4, still untraced.
+
+Non-text note (advisory, not scored down): the destructive fill `rgb(174,32,18)` against the dark dialog surface `rgb(36,40,51)` is 2.13:1. WCAG 1.4.11 does not require a button's boundary when its label identifies it, and the white label carries it; the red still reads as the one strong element in the dialog.
+
+## Score sheet
+
+| # | Criterion | Card | Dialog | Buttons page | Forms page |
+|---|---|---|---|---|---|
+| 1 | Focal point | 4 | 4 | n/a | n/a |
+| 2 | Portability | 3 | 3 | n/a | n/a |
+| 3 | Hierarchy, type, colour | 4 | **4** (B1 fixed, 6.97:1 both themes) | 4 | **4** (B2 fixed, 5.05:1) |
+| 4 | Visual language | 4 | 4 | 4 | 4 |
+| 5 | Taste ledger | 4 (no ledger file) | 4 | 4 | 4 |
+| 6 | AI-default tells | 5 | 5 | 5 | 5 |
+| 7 | Mobile + desktop, text fit | 3 (spill unattributed) | 4 | 3 (spill 21 unattributed) | 4 |
+| 8 | Inventory vs agora-web base | 5 | n/a | n/a | n/a |
+| | **Mean / verdict** | **32/8 = 4.0 PASS** | **28/7 = 4.0 PASS** | **20/5 = 4.0 PASS** | **21/5 = 4.2 PASS** |
+
+## Top fixes (none blocking)
+
+1. **Showcase capture script:** print the text + testID of every spill-probe hit, so #7 on card and Buttons can move to 4 on evidence.
+2. **Trace the 3 console MIME errors** (a script URL served as `index.html`) before the showcase deploy; if they survive on ui.dloizides.com they are a real defect.
+3. **Publish the four packages through `publish.ps1` and re-sight on ui.dloizides.com**: this round judged an unpublished local build.
+
+## Not covered
+
+Captures are a local build of unpublished design-tokens / ui-buttons / ui-forms / ui-feedback / ui-payments, not the deployed showcase; dark dialog focus ring not captured; spill-probe elements unidentified; console MIME errors untraced; Typeahead error state (`TypeaheadControl`) not rendered in any capture; Forms error border ratio computed from a single device-pixel row; real devices and screen reader not used; motion not judged from stills; `vf_measure.py` not run; no taste ledger exists for ui-payments.
