@@ -1,6 +1,6 @@
 {
   "name": "@dloizides/ui-payments",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Brand-agnostic React Native (RN-web) Stripe credentials card: connection status badge, masked key, webhook URL row, secret inputs with key-shape validation, payments switch and save/test/clear callbacks. Labels come in as props. Part of the dloizides.com shared UI kit.",
   "keywords": [
     "react",
