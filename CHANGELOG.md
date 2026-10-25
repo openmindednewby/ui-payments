@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.1
+
+- The webhook URL breaks only after `/` and `.`; a hyphenated slug (`agora-merchant-a-shop`) stays on one line.
+- Tighter card rhythm so Save sits above the fold at 1280x800 in a wizard: the webhook field and both secret fields drop their own bottom margin (the card gap already spaces them) and the card gap is 12 px.
+
 ## 0.4.0
 
 - The webhook URL breaks only after `/`, `.`, `?`, `&`, `=`, `_` and `-` (a `<wbr>` after each on web), never mid-word; the copied text is unchanged (`splitUrlForBreaks`).

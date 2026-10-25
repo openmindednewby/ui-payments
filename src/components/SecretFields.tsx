@@ -56,6 +56,7 @@ export const SecretFields = ({
         autoCapitalize="none"
         autoFocus={autoFocus && !locked}
         autoCorrect={false}
+        containerStyle={styles.tightField}
         editable={!locked}
         error={
           isSecretKeyAcceptable(draft.secretKey)
@@ -78,7 +79,7 @@ export const SecretFields = ({
           accessibilityHint={labels.webhookSecretHint}
           autoCapitalize="none"
           autoCorrect={false}
-          containerStyle={showHelper ? styles.tightField : undefined}
+          containerStyle={styles.tightField}
           editable={!locked}
           error={
             isWebhookSecretAcceptable(draft.webhookSecret)

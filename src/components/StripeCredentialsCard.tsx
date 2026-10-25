@@ -16,7 +16,7 @@ import { buildStripeSubmission } from '../utils/stripeConnection';
 
 import type { StripeCredentialsCardProps } from '../types';
 
-const GAP = 16;
+const GAP = 12;
 const TEXT_SIZE = 14;
 const TEXT_LINE_HEIGHT = 20;
 const ERROR_SIZE = 14;

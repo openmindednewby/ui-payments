@@ -13,7 +13,7 @@ describe('WebhookUrlRow', () => {
     const { getByTestId } = render(<WebhookUrlRow labels={labels} testID="stripe" url={url} wide={false} />);
 
     const node = getByTestId('stripe-webhook-url');
-    expect(node.querySelectorAll('wbr')).toHaveLength(11);
+    expect(node.querySelectorAll('wbr')).toHaveLength(9);
     expect(node.textContent).toBe(url);
   });
 });

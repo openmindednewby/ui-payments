@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
   box: { borderRadius: URL_RADIUS, borderWidth: URL_BORDER, paddingHorizontal: URL_PADDING_X, paddingVertical: URL_PADDING_Y },
   boxWide: { flex: 1, minWidth: 0 },
   column: { gap: GAP },
+  field: { marginBottom: 0 },
   help: { fontSize: HELP_FONT_SIZE },
   row: { alignItems: 'center', flexDirection: 'row', gap: GAP },
   url: { fontFamily: 'monospace', fontSize: URL_FONT_SIZE, lineHeight: URL_LINE_HEIGHT },
@@ -55,7 +56,7 @@ export const WebhookUrlRow = ({ url, labels, onCopy, wide, testID }: Props): Rea
   const instruction = labels.webhookUrlInstruction;
 
   return (
-    <Field label={labels.webhookUrl}>
+    <Field containerStyle={styles.field} label={labels.webhookUrl}>
       <View style={styles.column}>
         <View style={wide ? styles.row : styles.column}>
           <View

@@ -1,6 +1,12 @@
 import { splitUrlForBreaks } from './urlBreaks';
 
 describe('splitUrlForBreaks', () => {
+  it('never breaks inside a hyphenated or underscored slug', () => {
+    const url = 'https://x.com/agora-merchant_a-shop';
+
+    expect(splitUrlForBreaks(url)).toEqual(['https:/', '/', 'x.', 'com/', 'agora-merchant_a-shop']);
+  });
+
   it('ends each piece on a separator so the URL breaks after / and .', () => {
     const url = 'https://api.agora.dloizides.com/webhooks/stripe/merchant-a-shop';
 
@@ -15,9 +21,7 @@ describe('splitUrlForBreaks', () => {
       'com/',
       'webhooks/',
       'stripe/',
-      'merchant-',
-      'a-',
-      'shop',
+      'merchant-a-shop',
     ]);
   });
 
